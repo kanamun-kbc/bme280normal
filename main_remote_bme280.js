@@ -37,22 +37,38 @@ async function connect(){
 	/*理由は通信に時間がかかるから*/
 	channel = await relay.subscribe("chirimenBMEdteam");
 	console.log("web socketリレーサービスに接続しました");
+	/*onmessageはメッセージを受け取ったときに起きるイベント*/
+	/*pc.jsのsend("GET SENSOR DATA")を受け取り(1'番pc.jsから受け取り)関数transmitsensorDataが起動*/
 	channel.onmessage = transmitSensorData;
 }
 
+/*pc.jsから"GET SENSOR DATA"を受け取って, 共通のチャンネルに計測データを送信*/
 async function transmitSensorData(messge){
 	console.log(messge.data);
 	if ( messge.data =="GET SENSOR DATA"){
-		var sensorData = await readData();
-		channel.send(sensorData);
-		console.log(JSON.stringify(sensorData));
+	/*GET SENSOR DATAというテキストの受け取りに成功した場合*/
+	/*ここで10秒ごとにセンサーデータを送る*/
+		while(true){
+			/*変数sensorDataに計測データを代入*/
+			var sensorData = await readData();
+			/*計測データを送信(2番pc.jsへ)*/
+			channel.send(sensorData);
+			console.log(JSON.stringify(sensorData));
+			/*10秒ごと*/
+			await sleep(10000);
+		}
 	}
 }
 
+/*読み込んだデータの確認とリターン*/
 async function readData(){
+	/*bmeDataに読み込んだデータを入れる*/
 	var bmeData = await bme.readData();
+	/*デバックとして, どう表示されるかの確認*/
 	console.log('bmeData:', bmeData);
+	/*デバックとして3つのパラメータを分けて, どう表示されるかの確認*/
 	console.log("temperature:" + bmeData.temperature + "degree  <br>humidity:"+ bmeData.humidity + "% <br>pressure" + bmeData.pressure);
+	/*呼び出された非同期関数readDataは読み込んだデータを返す*/
 	return(bmeData);
 }
 
