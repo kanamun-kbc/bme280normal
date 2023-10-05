@@ -1,4 +1,4 @@
-# bme280normal
+# bme280(温湿度気圧センサ)
 Raspberry Pi Zero WをWebsocket経由でWebApp上で扱う方法. 
 
 web serial(read)からwifiに繋いだラズパイを用意し, Nodejsでmainファイルを起動,
